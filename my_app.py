@@ -10,6 +10,7 @@ LOCALE = 'en'
 
 def main():
     app = Dash()
+    server = app.server
 
     i18n.set('locale', LOCALE)
     i18n.load_path.append('translations')
