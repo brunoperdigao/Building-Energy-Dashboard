@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
 import i18n
-from dash import Dash, html, dcc
+import os
+from dash import Dash, html, dcc, CeleryManager
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -13,11 +14,23 @@ from src.data.loader import load_forecast_weather_data, load_historical_weather_
 
 pio.templates.default = "new_template"
 
+if 'REDIS_URL' in os.environ:
+    # Use Redis & Celery if REDIS_URL set as an env variable
+    from celery import Celery
+    celery_app = Celery(__name__, broker=os.environ['REDIS_URL'], backend=os.environ['REDIS_URL'])
+    background = True
+    background_callback_manager = CeleryManager(celery_app)
+else:
+    background = False
+    background_callback_manager = None
+
 def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> html.Div:
     @app.callback(
         Output('plot-forecast', "children"),
         Input('interval', 'n_intervals'),
         Input('dd-buildings', 'value'),
+        background=background,
+        manager=background_callback_manager,
            )
     def update_line_chart(n_intervals: int, value: str) -> html.Div:
         ### UPDATE DF WITH DROPDOWN VALUE
