@@ -121,7 +121,5 @@ print(f"R²: {r2:.2f}")
 
 ### Saving the model
 
-# output = open('./src/data/model_energy_consunption', 'wb')
 with bz2.BZ2File('./src/data/model_energy_consunption' + '.pbz2', 'w') as f:
     pickle.dump(var_model_fit, f)
-# output.close()

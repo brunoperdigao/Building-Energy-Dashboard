@@ -129,11 +129,9 @@ def create_building_forecast_dataframe(property_code:str) -> pd.DataFrame:
 
 def create_building_energy_forecast_dataframe(energy_data_last_date: pd.Timestamp,n_days_to_predict: int) -> pd.DataFrame:
 
-    #1 load the model
-    # input = open('./src/data/model_energy_consunption', 'rb')
+    #load the model
     data = bz2.BZ2File('./src/data/model_energy_consunption.pbz2', 'rb')
     model = pickle.load(data)
-    # input.close()
     
     start_date = energy_data_last_date + pd.Timedelta("1 day")
     end_date = start_date + pd.Timedelta(f"{n_days_to_predict} days")

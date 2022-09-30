@@ -14,23 +14,14 @@ from src.data.loader import load_forecast_weather_data, load_historical_weather_
 
 pio.templates.default = "new_template"
 
-if 'REDIS_URL' in os.environ:
-    # Use Redis & Celery if REDIS_URL set as an env variable
-    from celery import Celery
-    celery_app = Celery(__name__, broker=os.environ['REDIS_URL'], backend=os.environ['REDIS_URL'])
-    background = True
-    background_callback_manager = CeleryManager(celery_app)
-else:
-    background = False
-    background_callback_manager = None
-
-def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> html.Div:
+def render(app: Dash,
+        df: pd.DataFrame,
+        df_energy_predict: pd.DataFrame,
+        buildings_info: list) -> html.Div:
     @app.callback(
         Output('plot-forecast', "children"),
         Input('interval', 'n_intervals'),
         Input('dd-buildings', 'value'),
-        background=background,
-        manager=background_callback_manager,
            )
     def update_line_chart(n_intervals: int, value: str) -> html.Div:
         ### UPDATE DF WITH DROPDOWN VALUE
@@ -78,7 +69,7 @@ def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> html.Div:
         print("TESTE")
 
         #CREATING ENERGY FORECAST DATAFRAME
-        df_energy_prediction = create_building_energy_forecast_dataframe(energy_data_last_date, 9)
+        # df_energy_prediction = create_building_energy_forecast_dataframe(energy_data_last_date, 9)
         
 
         fig = make_subplots(
@@ -99,8 +90,8 @@ def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> html.Div:
 
         fig.add_trace(
             go.Scatter(
-                x=df_energy_prediction.index,
-                y=df_energy_prediction['value'],
+                x=df_energy_predict.index,
+                y=df_energy_predict['value'],
                 name=i18n.t('general.energy_forecast'),
                 mode='lines',
                 line=dict(dash='dash', color=HUE_COLORS[0])
