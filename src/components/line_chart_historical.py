@@ -2,7 +2,6 @@ import pandas as pd
 import i18n
 from dash import Dash, html, dcc
 from dash.dependencies import Input, Output
-import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.subplots import make_subplots

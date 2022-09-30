@@ -2,11 +2,9 @@ import pandas as pd
 import numpy as np
 import pickle
 import bz2file as bz2
-import sklearn
 import requests
 from datetime import date
 from typing import Tuple
-from dash import Dash
 from dash.dependencies import Input, Output
 
 

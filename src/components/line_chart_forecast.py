@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import i18n
-import pickle
 from dash import Dash, html, dcc
 from dash.dependencies import Input, Output
 import plotly.graph_objects as go

@@ -1,7 +1,6 @@
 import pandas as pd
 import i18n
 from dash import Dash, html, dcc
-import dash_bootstrap_components as dbc
 from src.components import line_chart_historical, line_chart_forecast, range_slider, dropdown_buildings, general_stats
 
 def create_layout(app: Dash,
