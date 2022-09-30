@@ -88,16 +88,16 @@ def render(app: Dash,
             row=1, col=1,
             )
 
-        # fig.add_trace(
-        #     go.Scatter(
-        #         x=df_energy_predict.index,
-        #         y=df_energy_predict['value'],
-        #         name=i18n.t('general.energy_forecast'),
-        #         mode='lines',
-        #         line=dict(dash='dash', color=HUE_COLORS[0])
-        #         ),
-        #     row=1, col=1,
-        #     )
+        fig.add_trace(
+            go.Scatter(
+                x=df_energy_predict.index,
+                y=df_energy_predict['value'],
+                name=i18n.t('general.energy_forecast'),
+                mode='lines',
+                line=dict(dash='dash', color=HUE_COLORS[0])
+                ),
+            row=1, col=1,
+            )
 
         fig.add_trace(
             go.Scatter(
