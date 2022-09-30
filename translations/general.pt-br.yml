@@ -1,0 +1,33 @@
+---
+pt-br:
+  app_title: 'Dashboard de Consumo Energético em Edificações'
+  dd_title: 'Selecione o edifício'
+  daterange_title: 'Selecione a data'
+  plot_historical_title: 'Dados históricos'
+  plot_forecast_title: 'Dados de previsão'
+  description_title: 'Descrição'
+  description: ' Este dashboard é um projeto pessoal criado com o intuito de testar ferramentas de ciência de dados para criação de aplicações web, com foco na análise de consumo energético de edificações. Os dados de energia são atualizados diretamente por uma [API](https://helsinki-openapi.nuuka.cloud/swagger/index.html#/) fornecida pela prefeitura de Helsinki (Finlândia), e os dados climáticos são extraídos da [API Open Meteo](https://open-meteo.com/). O primeiro conjunto de gráficos mostra os dados históricos, enquanto o segundo agrega dados de previsão climática (retirados da mesma API Open Meteo), com dados de previsão de consumo energético gerados a partir de um modelo de Machine Learning. Mais detalhe sobre a implementação desse projeto podem ser encontrados aqui.'
+  stats_title: 'Resumo de Consumo Energético'
+  stats_year_title: 'Último ano:'
+  stats_year: '_total_: **{year_sum:.2f} Kw** | _média_: **{year_average:.2f} Kw/h**'
+  stats_month_title: 'Último mês:'
+  stats_month: '_total_: **{month_sum:.2f} Kw** | _média_: **{month_average:.2f} Kw/h**'
+
+  missing_data: 'Os dados para esse edifício estão faltando'
+
+  # FORECAST LINE CHART
+  energy_past: 'Consumo energético | Últimos dias'
+  temperature_past: 'Temperatura do ar | Últimos dias'
+  humidity_past: 'Umidade relativa do ar | Últimos dias'
+  energy_forecast: 'Consumo energético | Previsão'
+  temperature_forecast: 'Temperatura do ar | Previsão'
+  humidity_forecast: 'Umidade relativa do ar | Previsão'
+
+  # HISTORICAL LINHE CHART
+  energy_hist: 'Consumo energético'
+  temperature_hist: 'Temperatura do ar'
+  humidity_hist: 'Umidade relativa do ar'
+
+  # BOTH CHARTS
+  timeline: 'Linha do tempo'
+  legend_title: 'Dados'
