@@ -8,18 +8,19 @@ from src.components.layout import create_layout
 
 LOCALE = 'en'
 
-def main():
-    app = Dash()
-    server = app.server
+app = Dash(__name__)
+server = app.server
 
-    i18n.set('locale', LOCALE)
-    i18n.load_path.append('translations')
-    
-    buildings_info, default_name = load_office_buildings()
-    df_historical = create_building_historical_dataframe(default_name)
-    df_forecast = create_building_forecast_dataframe(default_name)
-    app.title = i18n.t('general.app_title') 
-    app.layout = create_layout(app, df_historical, df_forecast, buildings_info)
+i18n.set('locale', LOCALE)
+i18n.load_path.append('translations')
+
+buildings_info, default_name = load_office_buildings()
+df_historical = create_building_historical_dataframe(default_name)
+df_forecast = create_building_forecast_dataframe(default_name)
+app.title = i18n.t('general.app_title') 
+app.layout = create_layout(app, df_historical, df_forecast, buildings_info)
+
+def main():
 
     app.run_server(debug=True)
 
