@@ -8,15 +8,23 @@ from statsmodels.tsa.api import VAR
 from statsmodels.tsa.statespace.varmax import VARMAX
 from statsmodels.tsa.stattools import adfuller, grangercausalitytests
 
-import xgboost as xgb
+# import xgboost as  xgb
+
+from darts import TimeSeries
+from darts.models.forecasting.linear_regression_model import LinearRegressionModel
+from darts.models.forecasting.regression_model import RegressionModel
+from darts.models.forecasting.gradient_boosted_model import LightGBMModel
+
 import plotly.express as px
 import plotly.graph_objects as go
-from src.data.loader import create_building_historical_dataframe, load_office_buildings
+from src.data.loader import create_building_historical_dataframe, load_office_buildings, create_building_forecast_dataframe
 
 buildings_info, default_name = load_office_buildings()
 
 ### Data prepataion
-
+df_forecast = create_building_forecast_dataframe('091-004-0001-0012')
+df_forecast = df_forecast.drop(columns=['reportingGroup', 'locationName', 'unit'])
+df_forecast = df_forecast[df_forecast['value'].isna()]
 df = create_building_historical_dataframe('091-004-0001-0012')
 df = df.drop(columns=['reportingGroup', 'locationName', 'unit'])
 df['day_of_year'] = df.index.dayofyear
@@ -123,3 +131,32 @@ print(f"R²: {r2:.2f}")
 
 with bz2.BZ2File('./src/data/model_energy_consunption' + '.pbz2', 'w') as f:
     pickle.dump(var_model_fit, f)
+
+### Using Darts
+new_df = pd.concat([df, df_forecast]) 
+df_darts = new_df.copy()
+df_darts_train = df_darts[:-90]
+df_darts_test = df_darts[-90:]
+
+
+ts_value = TimeSeries.from_series(df_darts_train['value'])
+ts_temperature = TimeSeries.from_series(df_darts_train['temperature_2m'])
+ts_humidity = TimeSeries.from_series(df_darts_train['relativehumidity_2m'])
+
+ts_future_temperature = TimeSeries.from_series(df_darts['temperature_2m'])
+ts_future_humidity = TimeSeries.from_series(df_darts['relativehumidity_2m'])
+
+ts_future_temperature_predict = TimeSeries.from_series(df_darts['temperature_2m'])
+ts_future_humidity_predict = TimeSeries.from_series(df_darts['relativehumidity_2m'])
+
+darts_model = LightGBMModel(lags=15, lags_past_covariates=15, lags_future_covariates=[1], output_chunk_length=90)
+darts_model = darts_model.fit(ts_value, 
+        past_covariates=ts_temperature.stack(ts_humidity),
+        future_covariates=ts_future_temperature.stack(ts_future_humidity))
+
+prediction = darts_model.predict(90, future_covariates=ts_future_temperature.stack(ts_future_humidity))
+
+result = pd.concat([df_darts_test['value'], prediction.pd_series()],axis=1, join='inner')
+
+fig = px.line(result)
+fig.show()
