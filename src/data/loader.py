@@ -127,14 +127,55 @@ def create_building_forecast_dataframe(property_code:str) -> pd.DataFrame:
 
     return df_merge
 
-def create_building_energy_forecast_dataframe(energy_data_last_date: pd.Timestamp,n_days_to_predict: int) -> pd.DataFrame:
+def create_building_energy_forecast_dataframe(n_days_to_predict: int,
+                                              df_historical: pd.DataFrame,
+                                              df_forecast: pd.DataFrame) -> pd.DataFrame:
 
-    #load the model
-    data = bz2.BZ2File('./src/data/model_energy_consunption.pbz2', 'rb')
-    model = pickle.load(data)
     
-    start_date = energy_data_last_date + pd.Timedelta("1 day")
-    end_date = start_date + pd.Timedelta(f"{n_days_to_predict} days")
-    prediction = model.get_prediction(start=start_date, end=end_date).predicted_mean
+    # Creating future covariates TimeSeries
+    df_hist_weather = df_historical.drop(columns={'reportingGroup', 'locationName', 'unit'})
+    df_fore_weather = df_forecast.drop(columns={'reportingGroup', 'locationName', 'unit'})
+
+    temperature_hist = df_hist_weather['temperature_2m']
+    temperature_fore = df_fore_weather['temperature_2m']
+    temperature_all = temperature_hist.combine_first(temperature_fore)
+
+
+    humidity_hist = df_hist_weather['relativehumidity_2m']
+    humidity_fore = df_fore_weather['relativehumidity_2m']
+    humidity_all = humidity_hist.combine_first(humidity_fore)
+
+    df_all_weather = pd.concat([temperature_all, humidity_all], axis=1)
+    df_all_weather
+
+    df_all_weather['weekend'] = (df_all_weather.index.dayofweek >= 5).astype(int)
+    df_all_weather['month'] = df_all_weather.index.month
+
+    df_all_weather = df_all_weather.reset_index()
+
+    df_all_weather = df_all_weather.to_json()
     
-    return prediction
+    # Creating the building TimeSeries
+    df_building = df_historical.drop(columns={'reportingGroup', 'locationName', 'unit', 'temperature_2m', 'relativehumidity_2m'})
+    df_building = df_building.reset_index()
+    df_building = df_building.to_json()
+
+    print(df_building)
+
+    # Making the request to the model api
+    params = {
+        "n_days_to_predict": n_days_to_predict,
+        "json_fut_cov": df_all_weather,
+        "json_building": df_building
+        }
+    endpoint_model = 'https://building-energy-ml-api.onrender.com/prediction/'
+    response = requests.post(endpoint_model, json=params)
+    print("API RESPONSE", response.status_code)
+    if response:
+        print(response.text)
+        df_predict = pd.read_json(response.json())
+    else:
+        df_predict = pd.DataFrame()
+        print('vazio')
+        
+    return df_predict

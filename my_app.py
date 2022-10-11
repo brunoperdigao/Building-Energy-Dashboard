@@ -20,12 +20,9 @@ df_forecast = create_building_forecast_dataframe(default_name)
 
 mask = df_forecast['value'].notna()
 energy_data_last_date = df_forecast[mask].index[-1]
-df_energy_predict = create_building_energy_forecast_dataframe(energy_data_last_date, 9)
-
-print(df_energy_predict.head())
 
 app.title = i18n.t('general.app_title') 
-app.layout = create_layout(app, df_historical, df_forecast, df_energy_predict, buildings_info)
+app.layout = create_layout(app, df_historical, df_forecast, buildings_info)
 
 def main():
 

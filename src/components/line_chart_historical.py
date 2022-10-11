@@ -12,7 +12,9 @@ from src.data.loader import load_forecast_weather_data, load_historical_weather_
 
 pio.templates.default = "new_template"
 
-def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> html.Div:
+def render(app: Dash,
+           df: pd.DataFrame,
+           buildings_info: list) -> html.Div:
     @app.callback(
         Output('plot-historical', "children"),
         Input('interval', 'n_intervals'),
@@ -26,7 +28,6 @@ def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> html.Div:
         # if df == None:
         #     return html.Div("No Data Loaded")
         
-        print("START HISTORICAL", start)
         ### UPDATE DF WITH DROPDOWN VALUE
         if value:
             for item in buildings_info:

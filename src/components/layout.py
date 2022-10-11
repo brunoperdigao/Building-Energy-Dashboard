@@ -6,7 +6,6 @@ from src.components import line_chart_historical, line_chart_forecast, range_sli
 def create_layout(app: Dash,
     df_historical: pd.DataFrame,
     df_forecast: pd.DataFrame,
-    df_energy_predict: pd.DataFrame,
     buildings_info: list) -> html.Div:
     return html.Div(
         id='main',
@@ -51,7 +50,7 @@ def create_layout(app: Dash,
                     html.H2(i18n.t('general.plot_forecast_title')),
                     html.Div(
                         id='plot-forecast',
-                        children= [line_chart_forecast.render(app, df_forecast, df_energy_predict, buildings_info)],
+                        children= [line_chart_forecast.render(app, df_forecast, df_historical, buildings_info)],
                         ),
                     ],
                 ),
