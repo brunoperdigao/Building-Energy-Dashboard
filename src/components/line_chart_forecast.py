@@ -24,48 +24,58 @@ def render(app: Dash,
         Input('dd-buildings', 'value'),
            )
     def update_line_chart(n_intervals: int, value: str) -> html.Div:
+        local_df_forecast = df_forecast.copy()
+        local_df_historical = df_historical.copy()
+        
         ### UPDATE DF WITH DROPDOWN VALUE
         if value:
             for item in buildings_info:
-                if item[0] == value:
+                found_match = False
+                print("<>", item[0][:10],"<>", value[:10])
+                if item[0][:10] == value[:10]: #check for the first 10 letters
                     property_code = item[-1] # property code is always last but not always second, because some buildings hame more then one location name
-                    df_forecast = create_building_forecast_dataframe(property_code)
-                    df_historical = create_building_historical_dataframe(property_code)
-                    break 
-        if df_forecast.shape[0] == 0:
+                    local_df_forecast = create_building_forecast_dataframe(property_code)
+                    local_df_historical = create_building_historical_dataframe(property_code)
+                    found_match = True
+                    break
+            if not found_match:
+                return html.Div(i18n.t('general.missing_data'))
+                
+        if local_df_forecast.shape[0] == 0:
             return html.Div(i18n.t('general.missing_data'))
         
-        mask = df_forecast['value'].notna()
-        energy_data_last_date = df_forecast[mask].index[-1]
+        mask = local_df_forecast['value'].notna()
+        energy_data_last_date = local_df_forecast[mask].index[-1]
         
 
         def split_dataframe(x, forecast=False):
             if forecast:
-                if x in df_forecast[df_forecast.index <= energy_data_last_date].values:
+                if x in local_df_forecast[local_df_forecast.index <= energy_data_last_date].values:
                     return np.nan
                 else:
                     return x
             else:
-                if x in df_forecast[df_forecast.index > energy_data_last_date].values:
+                if x in local_df_forecast[local_df_forecast.index > energy_data_last_date].values:
                     return np.nan
                 else:
                     return x
         
         #SPLITING TEMPERATURE DATAFRAME
-        df_temperature_last_days = df_forecast.copy()
-        df_temperature_last_days['temperature_2m'] = df_forecast['temperature_2m'].apply(split_dataframe)
+        df_temperature_last_days = local_df_forecast.copy()
+        df_temperature_last_days['temperature_2m'] = local_df_forecast['temperature_2m'].apply(split_dataframe)
 
-        df_temperature_forecast = df_forecast.copy()
-        df_temperature_forecast['temperature_2m'] = df_forecast['temperature_2m'].apply(split_dataframe, forecast=True)
+        df_temperature_forecast = local_df_forecast.copy()
+        df_temperature_forecast['temperature_2m'] = local_df_forecast['temperature_2m'].apply(split_dataframe, forecast=True)
 
         #SPLITING HUMIDITY DATAFRAME
-        df_humidity_last_days = df_forecast.copy()
-        df_humidity_last_days['relativehumidity_2m'] = df_forecast['relativehumidity_2m'].apply(split_dataframe)
+        df_humidity_last_days = local_df_forecast.copy()
+        df_humidity_last_days['relativehumidity_2m'] = local_df_forecast['relativehumidity_2m'].apply(split_dataframe)
 
-        df_humidity_forecast = df_forecast.copy()
-        df_humidity_forecast['relativehumidity_2m'] = df_forecast['relativehumidity_2m'].apply(split_dataframe, forecast=True)
-
-        df_energy_predict = create_building_energy_forecast_dataframe(20, df_historical, df_forecast)
+        df_humidity_forecast = local_df_forecast.copy()
+        df_humidity_forecast['relativehumidity_2m'] = local_df_forecast['relativehumidity_2m'].apply(split_dataframe, forecast=True)
+        
+        #GETTING THE ENERGY PREDICTION
+        df_energy_predict = create_building_energy_forecast_dataframe(20, local_df_historical, local_df_forecast)
         print("!ENERGY PREDICT!", df_energy_predict.head(5))
 
         
@@ -78,8 +88,8 @@ def render(app: Dash,
 
         fig.add_trace(
             go.Scatter(
-                x=df_forecast.index,
-                y=df_forecast['value'],
+                x=local_df_forecast.index,
+                y=local_df_forecast['value'],
                 name=i18n.t('general.energy_past'),
                 line=dict(color=HUE_COLORS[0])
                 ),
@@ -99,7 +109,7 @@ def render(app: Dash,
 
         fig.add_trace(
             go.Scatter(
-                x=df_forecast.index,
+                x=local_df_forecast.index,
                 y=df_temperature_last_days['temperature_2m'],
                 name=i18n.t('general.temperature_past'),
                 line=dict(color=HUE_COLORS[1])
@@ -109,7 +119,7 @@ def render(app: Dash,
 
         fig.add_trace(
             go.Scatter(
-                x=df_forecast.index,
+                x=local_df_forecast.index,
                 y=df_temperature_forecast['temperature_2m'],
                 name=i18n.t('general.temperature_forecast'),
                 line=dict(dash='dash', color=HUE_COLORS[1])
@@ -119,7 +129,7 @@ def render(app: Dash,
 
         fig.add_trace(
             go.Scatter(
-                x=df_forecast.index,
+                x=local_df_forecast.index,
                 y=df_humidity_last_days['relativehumidity_2m'],
                 name=i18n.t('general.humidity_past'),
                 line=dict(color=HUE_COLORS[2])
@@ -129,7 +139,7 @@ def render(app: Dash,
 
         fig.add_trace(
             go.Scatter(
-                x=df_forecast.index,
+                x=local_df_forecast.index,
                 y=df_humidity_forecast['relativehumidity_2m'],
                 name=i18n.t('general.humidity_forecast'),
                 line=dict(dash='dash', color=HUE_COLORS[2])

@@ -13,7 +13,7 @@ from src.data.loader import load_forecast_weather_data, load_historical_weather_
 pio.templates.default = "new_template"
 
 def render(app: Dash,
-           df: pd.DataFrame,
+           df_historical: pd.DataFrame,
            buildings_info: list) -> html.Div:
     @app.callback(
         Output('plot-historical', "children"),
@@ -23,23 +23,24 @@ def render(app: Dash,
         Input('range-slider', 'end_date'),
            )
     def update_line_chart(n_intervals: int, value: str, start: str, end: str) -> html.Div:
-
-        # print(type(df))
-        # if df == None:
-        #     return html.Div("No Data Loaded")
-        
+        local_df = df_historical.copy()
         ### UPDATE DF WITH DROPDOWN VALUE
         if value:
             for item in buildings_info:
-                if item[0] == value:
+                found_match = False
+                if item[0][:10] == value[:10]: # check for the first 10 letters
                     property_code = item[-1] # property code is always last but not always second, becaus some buildings hame more then one location name
-                    df = create_building_historical_dataframe(property_code)
-                    break 
-            
-        if df.shape[0] == 0:
-            return html.Div("The data is missing for this building")
-        filtered_df = df[(df.index > start) & (df.index < end)]
-        # print(">>>", df.index)
+                    local_df = create_building_historical_dataframe(property_code)
+                    found_match = True
+                    break
+            if not found_match:
+                return html.Div(i18n.t('general.missing_data'))
+                
+        if local_df.shape[0] == 0:
+            return html.Div(i18n.t('general.missing_data'))
+        
+        filtered_df = local_df[(local_df.index > start) & (local_df.index < end)]
+        # print(">>>", local_df.index)
         # print(start, end)
         fig = make_subplots(
                 rows=3,

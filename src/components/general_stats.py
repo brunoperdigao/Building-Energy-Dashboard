@@ -11,30 +11,32 @@ YEAR = datetime.timedelta(365)
 MONTH = datetime.timedelta(30)
 
 
-def render(app: Dash, df: pd.DataFrame, buildings_info: list) -> dcc.Markdown:
+def render(app: Dash, df_historical: pd.DataFrame, buildings_info: list) -> dcc.Markdown:
     @app.callback(
             Output('energy-info', 'children'),
             Input('dd-buildings', 'value'),
             )
     def update_stats_summary(value: str) -> dcc.Markdown:
+        local_df = df_historical.copy()
+        
         ### UPDATE DF WITH DROPDOWN VALUE
         if value:
             for item in buildings_info:
                 if item[0] == value:
                     property_code = item[-1] # property code is always last but not always second, becaus some buildings hame more then one location name
-                    df = create_building_historical_dataframe(property_code)
+                    local_df = create_building_historical_dataframe(property_code)
                     break 
-        if df.shape[0] == 0:
+        if local_df.shape[0] == 0:
             return html.Div("The data is missing for this building")
 
         
         year_range = str(TODAY - YEAR)
-        year_df = df[df.index > year_range]
+        year_df = local_df[local_df.index > year_range]
         year_sum = year_df['value'].sum()
         year_average = year_df['value'].mean()
 
         month_range = str(TODAY - MONTH)
-        month_df = df[df.index > month_range]
+        month_df = local_df[local_df.index > month_range]
         month_sum = month_df['value'].sum()
         month_average = month_df['value'].mean()
 

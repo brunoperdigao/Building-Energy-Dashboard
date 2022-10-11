@@ -89,7 +89,7 @@ def load_energy_data(property_code: str) -> pd.DataFrame:
             'EndTime': TODAY,
             }
     response_energy = requests.get(endpoint_energy, params=params_energy)
-    print(response_energy.status_code)
+    print("ENERGY RESPONSE", response_energy.status_code)
 
     if response_energy.status_code != 200:
         return pd.DataFrame()
@@ -131,7 +131,6 @@ def create_building_energy_forecast_dataframe(n_days_to_predict: int,
                                               df_historical: pd.DataFrame,
                                               df_forecast: pd.DataFrame) -> pd.DataFrame:
 
-    
     # Creating future covariates TimeSeries
     df_hist_weather = df_historical.drop(columns={'reportingGroup', 'locationName', 'unit'})
     df_fore_weather = df_forecast.drop(columns={'reportingGroup', 'locationName', 'unit'})
@@ -160,7 +159,6 @@ def create_building_energy_forecast_dataframe(n_days_to_predict: int,
     df_building = df_building.reset_index()
     df_building = df_building.to_json()
 
-    print(df_building)
 
     # Making the request to the model api
     params = {
@@ -172,7 +170,6 @@ def create_building_energy_forecast_dataframe(n_days_to_predict: int,
     response = requests.post(endpoint_model, json=params)
     print("API RESPONSE", response.status_code)
     if response:
-        print(response.text)
         df_predict = pd.read_json(response.json())
     else:
         df_predict = pd.DataFrame()
