@@ -23,16 +23,16 @@ def render(app: Dash,
         Input('interval', 'n_intervals'),
         Input('dd-buildings', 'value'),
            )
-    def update_line_chart(n_intervals: int, value: str) -> html.Div:
+    def update_line_chart(n_intervals: int, dd_value: str) -> html.Div:
         local_df_forecast = df_forecast.copy()
         local_df_historical = df_historical.copy()
         
         ### UPDATE DF WITH DROPDOWN VALUE
-        if value:
+        if dd_value:
             for item in buildings_info:
                 found_match = False
-                print("<>", item[0][:10],"<>", value[:10])
-                if item[0][:10] == value[:10]: #check for the first 10 letters
+                print("<>", item[0][:10],"<>", dd_value[:10])
+                if item[0][:10] == dd_value[:10]: #check for the first 10 letters
                     property_code = item[-1] # property code is always last but not always second, because some buildings hame more then one location name
                     local_df_forecast = create_building_forecast_dataframe(property_code)
                     local_df_historical = create_building_historical_dataframe(property_code)
@@ -148,7 +148,9 @@ def render(app: Dash,
             )
         
         fig.add_vline(energy_data_last_date, line_width=2, line_color=HUE_COLORS[3])
-        fig.update_layout(legend_title=i18n.t('general.legend_title'))
+        fig.update_layout(legend_title=i18n.t('general.legend_title'),
+                          margin=dict(t=30),
+                          title_text=f"Building location: {dd_value}")
         
         #Axis Titles
         fig['layout']['yaxis']['title'] = "Kw/h"

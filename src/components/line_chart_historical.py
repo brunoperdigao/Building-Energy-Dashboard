@@ -22,13 +22,13 @@ def render(app: Dash,
         Input('range-slider', 'start_date'),
         Input('range-slider', 'end_date'),
            )
-    def update_line_chart(n_intervals: int, value: str, start: str, end: str) -> html.Div:
+    def update_line_chart(n_intervals: int, dd_value: str, start: str, end: str) -> html.Div:
         local_df = df_historical.copy()
         ### UPDATE DF WITH DROPDOWN VALUE
-        if value:
+        if dd_value:
             for item in buildings_info:
                 found_match = False
-                if item[0][:10] == value[:10]: # check for the first 10 letters
+                if item[0][:10] == dd_value[:10]: # check for the first 10 letters
                     property_code = item[-1] # property code is always last but not always second, becaus some buildings hame more then one location name
                     local_df = create_building_historical_dataframe(property_code)
                     found_match = True
@@ -78,11 +78,14 @@ def render(app: Dash,
             row=3, col=1
             )
 
-        fig.update_layout(legend_title=i18n.t('general.legend_title'))
+        fig.update_layout(legend_title=i18n.t('general.legend_title'),
+                          margin=dict(t=30),
+                          title=f"Building location: {dd_value}")
 
         #Axis Titles
         fig['layout']['yaxis']['title'] = "Kw/h"
         fig['layout']['yaxis2']['title'] = "°C"
         fig['layout']['yaxis3']['title'] = "%"
         fig['layout']['xaxis3']['title'] = i18n.t('general.timeline') 
+        
         return html.Div(dcc.Graph(figure=fig, config=dict(displayModeBar=False)), id='line_chart_historical') 
