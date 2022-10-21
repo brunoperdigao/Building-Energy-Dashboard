@@ -2,7 +2,7 @@ Versão em [português](#pt-br)
 
 # Building Energy Consumption Dashboard
 
---> [Link to the app +](https://building-energy-dashboard.onrender.com)
+--> [Link to the app](https://building-energy-dashboard.onrender.com)
 
 ![dashboard image](cover.png "print screen of the dashboard page")
 
