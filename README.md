@@ -37,9 +37,7 @@ Nowadays, there is great technology available to measure lots of information abo
 <a id="pt-br"></a>
 
 # Dashboard de Consumo Energético em Edificações
-link para o app: https://building-energy-dashboard.onrender.com
-
-![dashboard image](cover.png "print screen da página do dashboard")
+--> [Link para o app](https://building-energy-dashboard.onrender.com)
 
 
 'Este dashboard é um projeto para portfólio, criado com o intuito de desenvolver e demonstrar habilidades em ferramentas de ciência de dados para criação de aplicações web, com foco na análise de consumo energético de edificações. Os dados de energia são atualizados diretamente por uma [API](https://helsinki-openapi.nuuka.cloud/swagger/index.html#/) fornecida pela prefeitura de Helsinki (Finlândia), e os dados climáticos são extraídos da [API Open Meteo](https://open-meteo.com/). O primeiro conjunto de gráficos mostra os dados históricos, enquanto o segundo agrega dados de previsão climática (retirados da mesma API Open Meteo), com dados de previsão de consumo energético gerados a partir de um modelo de Machine Learning.
